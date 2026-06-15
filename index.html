@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantMind | Quantitative Intelligence & Low-Latency Core Architectures</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Space Grotesk & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    colors: {
+                        cyber: {
+                            950: '#030712',
+                            900: '#090d16',
+                            850: '#0f172a',
+                            800: '#1e293b',
+                            400: '#22d3ee', // Cyan neon
+                            500: '#06b6d4',
+                            emerald: '#10b981', // Emerald highlights
+                        }
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar to match dark cyber design */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+
+        .cyber-grid {
+            background-size: 50px 50px;
+            background-image: linear-gradient(to right, rgba(34, 211, 238, 0.04) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
+        }
+
+        .gradient-glow {
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(3, 7, 18, 0) 70%);
+        }
+
+        .active-tab-nav {
+            background-color: #06b6d4;
+            color: #030712 !important;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-cyber-950 text-slate-100 font-sans min-h-screen flex flex-col overflow-x-hidden relative">
+
+    <!-- Interactive Nodes background layer -->
+    <canvas id="particlesCanvas" class="absolute inset-0 pointer-events-none z-0 opacity-40"></canvas>
+
+    <!-- Background decorative grids & lights -->
+    <div class="absolute inset-0 cyber-grid pointer-events-none z-0"></div>
+    <div class="absolute top-0 left-1/4 w-[500px] h-[500px] gradient-glow pointer-events-none z-0"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] gradient-glow pointer-events-none z-0"></div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-cyber-950/80 border-b border-cyber-850/60 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo Brand -->
+                <div class="flex items-center space-x-3 cursor-pointer group" onclick="navigateTo('home')">
+                    <div class="relative w-12 h-12 flex items-center justify-center bg-gradient-to-tr from-cyan-600 to-emerald-500 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all duration-300 group-hover:rotate-6 group-hover:scale-105">
+                        <svg class="w-7 h-7 text-cyber-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                        </svg>
+                        <div class="absolute inset-0 bg-cyan-400 rounded-xl filter blur-md opacity-0 group-hover:opacity-40 transition-opacity duration-300"></div>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-black tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-150 to-cyan-400 font-mono">QUANTMIND</span>
+                        <span class="text-[9px] block tracking-[0.25em] text-emerald-400 uppercase font-bold">Quantitative Intelligence</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Menu -->
+                <nav class="hidden md:flex items-center space-x-1 bg-cyber-900/60 p-1.5 rounded-full border border-cyber-850/80">
+                    <button onclick="navigateTo('home')" id="nav-home" class="nav-btn px-5 py-2.5 rounded-full text-sm font-medium text-slate-400 hover:text-white hover:bg-cyber-850/50 transition-all duration-300 active-tab-nav">
+                        Home
+                    </button>
+                    <button onclick="navigateTo('services')" id="nav-services" class="nav-btn px-5 py-2.5 rounded-full text-sm font-medium text-slate-400 hover:text-white hover:bg-cyber-850/50 transition-all duration-300">
+                        Services
+                    </button>
+                    <button onclick="navigateTo('company')" id="nav-company" class="nav-btn px-5 py-2.5 rounded-full text-sm font-medium text-slate-400 hover:text-white hover:bg-cyber-850/50 transition-all duration-300">
+                        Company
+                    </button>
+                    <button onclick="navigateTo('connect')" id="nav-connect" class="nav-btn px-5 py-2.5 rounded-full text-sm font-medium text-slate-400 hover:text-white hover:bg-cyber-850/50 transition-all duration-300">
+                        Connect Us
+                    </button>
+                </nav>
+
+                <!-- Premium CTA Action -->
+                <div class="hidden md:block">
+                    <button onclick="navigateTo('connect')" class="relative px-6 py-3 rounded-xl text-sm font-bold overflow-hidden group transition-all duration-300 hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]">
+                        <span class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-emerald-500 transition-all duration-300 group-hover:opacity-90"></span>
+                        <span class="relative flex items-center space-x-2 text-cyber-950">
+                            <span>Deploy Core</span>
+                            <svg class="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Toggle Button -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="p-2.5 rounded-xl bg-cyber-900 border border-cyber-800 text-slate-400 hover:text-white focus:outline-none">
+                        <svg id="menuIcon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-cyber-950/95 border-b border-cyber-850 backdrop-blur-lg px-4 pt-2 pb-6 space-y-2 absolute left-0 w-full transition-all duration-300 shadow-xl">
+            <button onclick="navigateTo('home')" class="w-full text-left px-4 py-3.5 rounded-xl font-semibold text-slate-300 hover:bg-cyber-900 hover:text-cyan-400 transition-colors">Home</button>
+            <button onclick="navigateTo('services')" class="w-full text-left px-4 py-3.5 rounded-xl font-semibold text-slate-300 hover:bg-cyber-900 hover:text-cyan-400 transition-colors">Services</button>
+            <button onclick="navigateTo('company')" class="w-full text-left px-4 py-3.5 rounded-xl font-semibold text-slate-300 hover:bg-cyber-900 hover:text-cyan-400 transition-colors">Company</button>
+            <button onclick="navigateTo('connect')" class="w-full text-left px-4 py-3.5 rounded-xl font-semibold text-slate-300 hover:bg-cyber-900 hover:text-cyan-400 transition-colors">Connect Us</button>
+            <div class="pt-4 border-t border-cyber-850">
+                <button onclick="navigateTo('connect')" class="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-emerald-500 text-cyber-950 font-bold rounded-xl text-center shadow-lg">Get Started</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow relative z-10">
+
+        <!-- ==================== HOME PAGE VIEW ==================== -->
+        <section id="page-home" class="page-view max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24 transition-opacity duration-300">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Left Column: Vision & Dynamic CTAs -->
+                <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs sm:text-sm font-semibold tracking-wide">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>High-Frequency Algorithmic Infrastructure</span>
+                    </div>
+
+                    <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.1] text-white">
+                        Engineered to <br>
+                        <span id="hero-word" class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 font-mono">Synthesize Predictive Models</span>
+                    </h1>
+
+                    <p class="text-lg text-slate-400 max-w-2xl mx-auto lg:mx-0">
+                        QuantMind crafts ultra-high performance quantitative trading platforms, asynchronous backtesting microservices, and military-grade streaming data infrastructures to capture microsecond market opportunities.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                        <button onclick="navigateTo('services')" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-cyan-500 hover:bg-cyan-600 text-cyber-950 font-extrabold transition-all duration-300 transform hover:-translate-y-1 shadow-[0_4px_25px_rgba(6,182,212,0.3)] flex items-center justify-center space-x-2">
+                            <span>Explore Core Services</span>
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </button>
+                        <button onclick="navigateTo('company')" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-cyber-900 hover:bg-cyber-850 text-slate-300 font-semibold border border-cyber-800 hover:border-cyber-700 transition-all duration-300 transform hover:-translate-y-1 flex items-center justify-center space-x-2">
+                            <span>Meet Our Engineers</span>
+                        </button>
+                    </div>
+
+                    <!-- Visual Quick Metrics Grid -->
+                    <div class="grid grid-cols-3 gap-4 pt-8 border-t border-cyber-850 max-w-md mx-auto lg:mx-0">
+                        <div>
+                            <div class="text-2xl sm:text-3xl font-black text-white font-mono">99.999%</div>
+                            <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Uptime Pledge</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl sm:text-3xl font-black text-cyan-400 font-mono">1.2B+</div>
+                            <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Daily Signals</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">&lt; 1ms</div>
+                            <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Core Latency</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive Hardware Telemetry Dashboard Widget -->
+                <div class="lg:col-span-5 flex justify-center items-center">
+                    <div class="relative w-full max-w-md rounded-3xl border border-cyber-850 bg-cyber-900/40 backdrop-blur-xl p-6 overflow-hidden hover:shadow-[0_0_50px_rgba(6,182,212,0.15)] transition-shadow duration-500">
+                        
+                        <!-- Panel top bar simulation -->
+                        <div class="flex justify-between items-center mb-6">
+                            <div class="flex space-x-1.5">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            </div>
+                            <span class="text-[10px] text-slate-500 font-mono tracking-widest bg-cyber-950 px-2 py-1 rounded border border-cyber-850">TELEMETRY: ACTIVE</span>
+                        </div>
+
+                        <!-- Main Core Benchmark Status -->
+                        <div class="space-y-4">
+                            <div class="p-4 bg-cyber-950 rounded-2xl border border-cyber-850/60">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs text-slate-400 font-medium">Dynamic System Load</span>
+                                    <span id="loadText" class="text-xs text-cyan-400 font-mono font-bold">34%</span>
+                                </div>
+                                <div class="w-full bg-cyber-900 h-2 rounded-full overflow-hidden">
+                                    <div id="loadProgressBar" class="bg-gradient-to-r from-cyan-500 to-teal-400 h-full w-[34%] transition-all duration-300"></div>
+                                </div>
+                            </div>
+
+                            <!-- Live Telemetry Sparkline Canvas Graph -->
+                            <div class="h-32 bg-cyber-950/80 rounded-2xl border border-cyber-850/60 p-3 flex flex-col justify-between">
+                                <span class="text-[10px] uppercase font-mono tracking-wider text-slate-500">Real-Time Core Queue Backlog</span>
+                                <canvas id="sparklineCanvas" class="w-full h-20"></canvas>
+                            </div>
+
+                            <!-- Actions to run simulation diagnostics -->
+                            <button onclick="triggerBenchmarkSimulation()" class="w-full py-3 bg-cyber-850 hover:bg-cyber-800 text-cyan-400 font-semibold rounded-xl text-xs font-mono tracking-wide border border-cyan-500/20 hover:border-cyan-500/40 transition-all duration-300 flex items-center justify-center space-x-2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 12H19" />
+                                </svg>
+                                <span>Trigger Load Simulation Benchmarks</span>
+                            </button>
+                        </div>
+
+                        <!-- Footer stats -->
+                        <div class="mt-6 pt-4 border-t border-cyber-850/60 flex justify-between text-[10px] text-slate-500 font-mono">
+                            <span>SPEED: 4.80 GHz</span>
+                            <span>MODEL ACC: 99.84%</span>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Trust Partner Banner -->
+            <div class="mt-24 py-12 border-t border-b border-cyber-850/60 bg-cyber-900/10 rounded-3xl px-8">
+                <p class="text-center text-xs font-bold uppercase tracking-widest text-slate-500 mb-8">Trusted by Strategic Institutional Groups</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 justify-items-center opacity-60">
+                    <div class="flex items-center space-x-2 text-lg font-bold text-slate-400">
+                        <span class="w-6 h-6 bg-gradient-to-tr from-cyan-500 to-emerald-500 rounded-lg flex items-center justify-center text-cyber-950 text-xs font-black">Σ</span>
+                        <span>Sigma Capital</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-lg font-bold text-slate-400">
+                        <span class="w-6 h-6 bg-gradient-to-tr from-cyan-500 to-emerald-500 rounded-lg flex items-center justify-center text-cyber-950 text-xs font-black">Δ</span>
+                        <span>Delta Stream</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-lg font-bold text-slate-400">
+                        <span class="w-6 h-6 bg-gradient-to-tr from-cyan-500 to-emerald-500 rounded-lg flex items-center justify-center text-cyber-950 text-xs font-black">Ω</span>
+                        <span>Omega Nodes</span>
+                    </div>
+                    <div class="flex items-center space-x-2 text-lg font-bold text-slate-400">
+                        <span class="w-6 h-6 bg-gradient-to-tr from-cyan-500 to-emerald-500 rounded-lg flex items-center justify-center text-cyber-950 text-xs font-black">Φ</span>
+                        <span>Prime Analytics</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Value Propositions Block -->
+            <div class="mt-24 space-y-16">
+                <div class="text-center max-w-3xl mx-auto space-y-4">
+                    <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">Why QuantMind Powers High-Volume Trading</h2>
+                    <p class="text-base text-slate-400 font-sans">Engineering state-of-the-art architectures to manage extreme throughput limits safely.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Value 1 -->
+                    <div class="p-8 rounded-3xl bg-cyber-900/30 border border-cyber-850 hover:border-cyan-500/20 hover:bg-cyber-900/50 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 mb-6">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3">Ultra-Low Latency Execution</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Custom asynchronous kernels designed to parse and route complex multi-asset data pipelines in microseconds.
+                        </p>
+                    </div>
+                    <!-- Value 2 -->
+                    <div class="p-8 rounded-3xl bg-cyber-900/30 border border-cyber-850 hover:border-emerald-500/20 hover:bg-cyber-900/50 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mb-6">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3">Zero-Trust Network Insulation</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Secured sandbox isolation frameworks and dynamic mutual TLS validation algorithms keeping your data safe.
+                        </p>
+                    </div>
+                    <!-- Value 3 -->
+                    <div class="p-8 rounded-3xl bg-cyber-900/30 border border-cyber-850 hover:border-cyan-500/20 hover:bg-cyber-900/50 transition-all duration-300">
+                        <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400 mb-6">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3">Multi-Region Scale Nodes</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Geographically distributed microservice clusters optimized for persistent high-throughput workloads.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SERVICES PAGE VIEW ==================== -->
+        <section id="page-services" class="page-view hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24 transition-opacity duration-300">
+            <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+                <span class="text-cyan-400 text-xs sm:text-sm font-semibold tracking-wider uppercase font-mono">Our Architecture Portfolio</span>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">Core Quantitative Capabilities</h2>
+                <p class="text-base sm:text-lg text-slate-400">Select any system segment below to analyze pipeline blueprints, technical stacks, and system deliverables.</p>
+            </div>
+
+            <!-- Dynamic Services grid cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                
+                <!-- Service 1 -->
+                <div onclick="selectService('cloud')" id="serviceCard-cloud" class="p-6 rounded-2xl border text-left cursor-pointer transition-all duration-300 bg-cyber-900/30 border-cyber-850 hover:border-cyan-500/30">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                        </div>
+                        <span class="text-[10px] uppercase font-mono tracking-widest text-slate-500">SYSTEM #01</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Quantitative Systems</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Microsecond-scale processing nodes with active computational verification grids.</p>
+                    <div class="flex items-center space-x-1 text-xs font-semibold text-cyan-400">
+                        <span>Inspect Telemetry</span>
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                </div>
+
+                <!-- Service 2 -->
+                <div onclick="selectService('software')" id="serviceCard-software" class="p-6 rounded-2xl border text-left cursor-pointer transition-all duration-300 bg-cyber-900/30 border-cyber-850 hover:border-cyan-500/30">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+                        </div>
+                        <span class="text-[10px] uppercase font-mono tracking-widest text-slate-500">SYSTEM #02</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Algorithmic Cores</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Asynchronous multi-threaded backtesters prioritizing safe memory execution models.</p>
+                    <div class="flex items-center space-x-1 text-xs font-semibold text-cyan-400">
+                        <span>Inspect Telemetry</span>
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                </div>
+
+                <!-- Service 3 -->
+                <div onclick="selectService('data')" id="serviceCard-data" class="p-6 rounded-2xl border text-left cursor-pointer transition-all duration-300 bg-cyber-900/30 border-cyber-850 hover:border-cyan-500/30">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        </div>
+                        <span class="text-[10px] uppercase font-mono tracking-widest text-slate-500">SYSTEM #03</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Data Stream Engines</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Sub-millisecond analytics pipelines managing millions of concurrent tickers.</p>
+                    <div class="flex items-center space-x-1 text-xs font-semibold text-cyan-400">
+                        <span>Inspect Telemetry</span>
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                </div>
+
+                <!-- Service 4 -->
+                <div onclick="selectService('security')" id="serviceCard-security" class="p-6 rounded-2xl border text-left cursor-pointer transition-all duration-300 bg-cyber-900/30 border-cyber-850 hover:border-cyan-500/30">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+                        </div>
+                        <span class="text-[10px] uppercase font-mono tracking-widest text-slate-500">SYSTEM #04</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Strategic Audits</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">Rigid code analysis, cryptographic handshakes, and strict risk mapping sweeps.</p>
+                    <div class="flex items-center space-x-1 text-xs font-semibold text-cyan-400">
+                        <span>Inspect Telemetry</span>
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Service Specification Drawer Box -->
+            <div id="serviceDrawer" class="hidden p-8 sm:p-10 rounded-3xl bg-cyber-900/40 border border-cyan-500/30 backdrop-blur-md mb-24 relative overflow-hidden animate-slideUp">
+                <div class="absolute top-0 right-0 p-4">
+                    <button onclick="closeServiceDrawer()" class="text-slate-500 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    <div class="lg:col-span-5 space-y-4">
+                        <div id="drawerIcon" class="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400"></div>
+                        <h3 id="drawerTitle" class="text-2xl font-bold text-white">System Specifications</h3>
+                        <p id="drawerDesc" class="text-slate-400 text-sm leading-relaxed"></p>
+                        
+                        <div id="drawerTech" class="pt-4 flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6 bg-cyber-950/60 p-6 sm:p-8 rounded-2xl border border-cyber-850">
+                        <div>
+                            <span class="text-[10px] uppercase font-mono tracking-wider text-slate-500 block mb-1">STANDARD ROUTING CYCLE</span>
+                            <p id="drawerLifecycle" class="text-white text-sm font-bold"></p>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-mono tracking-wider text-slate-500 block mb-1">COMPLIANCE CRITERIA</span>
+                            <p id="drawerCompliance" class="text-white text-sm font-bold"></p>
+                        </div>
+                        <div class="sm:col-span-2 pt-4 border-t border-cyber-850">
+                            <span class="text-[10px] uppercase font-mono tracking-wider text-slate-500 block mb-2">SYSTEM DELIVERABLES</span>
+                            <ul id="drawerDeliverables" class="space-y-1.5 text-xs text-slate-400"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Budget Construction Planner -->
+            <div class="p-8 sm:p-12 rounded-3xl bg-cyber-900/10 border border-cyber-850 relative">
+                <div class="max-w-3xl mx-auto space-y-12">
+                    
+                    <div class="text-center space-y-3">
+                        <div class="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold">
+                            <span>Deployment Planner</span>
+                        </div>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-white">Engine Construction Budget Estimator</h3>
+                        <p class="text-sm text-slate-400">Adjust the target parameters to calculate custom model synthesis budgets.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                        
+                        <!-- Left Sliders -->
+                        <div class="space-y-6">
+                            <!-- Project type select -->
+                            <div class="space-y-2">
+                                <label class="text-xs uppercase font-mono text-slate-400 block tracking-wider">Operational Area</label>
+                                <select id="estType" onchange="calculateBudget()" class="w-full bg-cyber-950 border border-cyber-850 focus:border-cyan-500 rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-colors">
+                                    <option value="cloud">Quantitative Systems (EKS, active nodes)</option>
+                                    <option value="software">Algorithmic Cores (Rust, safe pipelines)</option>
+                                    <option value="data">Data Stream Engine (Kafka, ClickHouse)</option>
+                                    <option value="security">Strategic Audit (Compliance, penetration)</option>
+                                </select>
+                            </div>
+
+                            <!-- Duration slider -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-xs uppercase font-mono tracking-wider">
+                                    <span class="text-slate-400">Project Timeline</span>
+                                    <span id="estDurationText" class="text-cyan-400 font-bold">6 Months</span>
+                                </div>
+                                <input type="range" id="estDuration" min="3" max="18" value="6" oninput="updateSliderText(); calculateBudget();" class="w-full accent-cyan-500 h-1.5 bg-cyber-950 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-[10px] text-slate-600 font-mono">
+                                    <span>3 Months</span>
+                                    <span>18 Months</span>
+                                </div>
+                            </div>
+
+                            <!-- SLA Tier select buttons -->
+                            <div class="space-y-2">
+                                <label class="text-xs uppercase font-mono text-slate-400 block tracking-wider">Operational SLA Scale</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="setSLATier('standard')" id="btnSla-standard" class="sla-btn py-3 px-2 text-xs font-bold rounded-xl border transition-all duration-300 bg-cyber-950 text-slate-400 border-cyber-850 hover:border-slate-800">
+                                        Standard
+                                    </button>
+                                    <button onclick="setSLATier('pro')" id="btnSla-pro" class="sla-btn py-3 px-2 text-xs font-bold rounded-xl border transition-all duration-300 bg-cyan-500 text-cyber-950 border-cyan-400 font-semibold">
+                                        Pro (99.9%)
+                                    </button>
+                                    <button onclick="setSLATier('quantum')" id="btnSla-quantum" class="sla-btn py-3 px-2 text-xs font-bold rounded-xl border transition-all duration-300 bg-cyber-950 text-slate-400 border-cyber-850 hover:border-slate-800">
+                                        Quantum
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Output -->
+                        <div class="bg-cyber-950 border border-cyber-850 p-6 sm:p-8 rounded-2xl flex flex-col justify-between h-full space-y-6">
+                            <div class="space-y-4">
+                                <span class="text-xs uppercase font-mono tracking-wider text-slate-500 block">Estimated Synthesis Cost</span>
+                                <div class="flex items-baseline space-x-1">
+                                    <span id="calculatedCostText" class="text-3xl sm:text-4xl font-extrabold text-white font-mono">$36,000</span>
+                                    <span class="text-xs text-slate-500 font-mono">/ USD</span>
+                                </div>
+                                <p class="text-xs text-slate-400 leading-relaxed">
+                                    This automated calculation estimate covers initial computational verification, cluster creation scripts, secure sandboxing integrations, and localized performance testing.
+                                </p>
+                            </div>
+
+                            <div class="space-y-3 pt-4 border-t border-cyber-850">
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-slate-400">Infrastructure Base:</span>
+                                    <span id="baseCostText" class="text-white font-semibold font-mono">$20,000</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-slate-400">Tier Multiplier:</span>
+                                    <span id="tierMultiplierText" class="text-white font-semibold font-mono">1.5x</span>
+                                </div>
+                                <div class="flex justify-between items-center text-xs">
+                                    <span class="text-slate-400">Timeline Impact:</span>
+                                    <span id="timelineImpactText" class="text-white font-semibold font-mono">Standard</span>
+                                </div>
+                            </div>
+
+                            <button onclick="transferBudgetToForm()" class="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:opacity-90 text-cyber-950 text-sm font-extrabold shadow-lg transition-all duration-300">
+                                Convert to Custom Proposal
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== COMPANY (ABOUT) PAGE VIEW ==================== -->
+        <section id="page-company" class="page-view hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24 transition-opacity duration-300">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
+                
+                <div class="space-y-6">
+                    <span class="text-cyan-400 text-xs sm:text-sm font-semibold tracking-wider uppercase font-mono">Behind The Algorithms</span>
+                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">We Build Quantitative Engines That Never Fail.</h2>
+                    <p class="text-slate-400 text-sm sm:text-base leading-relaxed">
+                        QuantMind was founded with a singular focus: to strip away processing inefficiencies and design mathematical systems that survive high-volatility events. We build robust systems that keep transactional nodes operational under extreme stress constraints, safeguarding complex institutional operations.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 rounded-xl bg-cyber-900/30 border border-cyber-850">
+                            <span class="text-xs text-cyan-400 block font-semibold mb-1">Our Core Objective</span>
+                            <p class="text-xs text-slate-400 leading-relaxed">Optimizing micro-level algorithms to function cleanly under high strain.</p>
+                        </div>
+                        <div class="p-4 rounded-xl bg-cyber-900/30 border border-cyber-850">
+                            <span class="text-xs text-emerald-400 block font-semibold mb-1">Our Strategy</span>
+                            <p class="text-xs text-slate-400 leading-relaxed">Pioneering fully secure container sandboxes across global region sets.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aggregated Operations Box -->
+                <div class="flex justify-center items-center">
+                    <div class="relative w-full max-w-md bg-cyber-900/40 border border-cyber-850 p-8 rounded-3xl space-y-8 overflow-hidden shadow-2xl">
+                        <div class="absolute -top-12 -right-12 w-48 h-48 bg-cyan-500/10 rounded-full filter blur-xl"></div>
+                        <div class="flex justify-between items-center border-b border-cyber-850 pb-6">
+                            <h3 class="text-lg font-bold text-white">Aggregated Performance</h3>
+                            <span class="text-xs text-cyan-400 font-mono">AUDITED v5.4</span>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-400">Total Capital Routed:</span>
+                                <span class="text-white font-bold font-mono">$4.8B+ USD</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-400">Core Network Engineers:</span>
+                                <span class="text-white font-bold font-mono">140 FTE Senior</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="text-slate-400">Active Node Clusters:</span>
+                                <span class="text-emerald-400 font-bold font-mono">2,048 Verified</span>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-6 border-t border-cyber-850 text-center">
+                            <p class="text-[10px] text-slate-500 font-mono">ISO 27001 & SEC COMPLIANT CORE ARCHITECTURES</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Corporate Timeline Section -->
+            <div class="mb-24 py-12 border-t border-b border-cyber-850">
+                <div class="text-center max-w-xl mx-auto space-y-3 mb-12">
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-white">QuantMind Timeline</h3>
+                    <p class="text-xs sm:text-sm text-slate-400">Click any year indicator node below to view corporate evolution eras.</p>
+                </div>
+
+                <div class="space-y-8 max-w-4xl mx-auto">
+                    <!-- Progress line navigation -->
+                    <div class="relative flex justify-between items-center px-4 md:px-12">
+                        <div class="absolute h-0.5 bg-cyber-850 left-12 right-12 top-1/2 -translate-y-1/2 z-0"></div>
+                        <div id="timelineProgress" class="absolute h-0.5 bg-cyan-500 left-12 top-1/2 -translate-y-1/2 z-0 transition-all duration-500 w-[0%]"></div>
+                        
+                        <button onclick="setTimelineYear(2019, 0)" class="timeline-btn w-12 h-12 rounded-full bg-cyan-500 text-cyber-950 font-mono font-bold text-xs relative z-10 ring-4 ring-cyan-500/20 transition-all duration-300">2019</button>
+                        <button onclick="setTimelineYear(2021, 25)" class="timeline-btn w-12 h-12 rounded-full bg-cyber-900 text-slate-400 border border-cyber-850 font-mono font-bold text-xs relative z-10 hover:text-white transition-all duration-300">2021</button>
+                        <button onclick="setTimelineYear(2023, 50)" class="timeline-btn w-12 h-12 rounded-full bg-cyber-900 text-slate-400 border border-cyber-850 font-mono font-bold text-xs relative z-10 hover:text-white transition-all duration-300">2023</button>
+                        <button onclick="setTimelineYear(2025, 75)" class="timeline-btn w-12 h-12 rounded-full bg-cyber-900 text-slate-400 border border-cyber-850 font-mono font-bold text-xs relative z-10 hover:text-white transition-all duration-300">2025</button>
+                        <button onclick="setTimelineYear(2026, 100)" class="timeline-btn w-12 h-12 rounded-full bg-cyber-900 text-slate-400 border border-cyber-850 font-mono font-bold text-xs relative z-10 hover:text-white transition-all duration-300">2026</button>
+                    </div>
+
+                    <!-- Selected Milestone details block -->
+                    <div class="p-6 sm:p-8 rounded-2xl bg-cyber-900/30 border border-cyber-850 text-center sm:text-left transition-all duration-300">
+                        <div class="flex flex-col sm:flex-row items-center sm:justify-between gap-4 mb-4">
+                            <h4 id="timelineTitle" class="text-xl font-bold text-white">Genesis System Inception</h4>
+                            <span id="timelineScope" class="px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full text-xs font-mono font-bold">GENESIS CORE</span>
+                        </div>
+                        <p id="timelineDesc" class="text-sm text-slate-400 leading-relaxed">QuantMind established a localized microsecond tracker system designed to check telemetry metrics for regional execution desks.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The Technical Architects Section -->
+            <div class="space-y-12">
+                <div class="text-center max-w-xl mx-auto space-y-3">
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-white">The Quantitative Architects</h3>
+                    <p class="text-xs sm:text-sm text-slate-400">Hover over any coordinator card to observe portfolio efficiency indices.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    
+                    <!-- Team 1 -->
+                    <div onmouseenter="activateTeamPerf('t1')" onmouseleave="deactivateTeamPerf('t1')" class="p-6 rounded-2xl border bg-cyber-900/20 border-cyber-850 hover:bg-cyber-900/50 hover:border-cyber-800 text-center flex flex-col items-center group relative overflow-hidden transition-all duration-300">
+                        <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-cyan-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                        <div class="w-20 h-20 rounded-2xl overflow-hidden mb-6 bg-cyber-950 flex items-center justify-center border border-cyber-850 group-hover:border-cyan-500/40 transition-colors">
+                            <svg class="w-12 h-12 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-1">Dr. Evelyn Carter</h4>
+                        <span class="text-xs text-cyan-400 font-mono mb-4 block">Lead Systems Architect</span>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">Ex-Aegis Capital design engineer mapping low-latency transaction structures for 12+ years.</p>
+                        
+                        <div class="w-full space-y-2 pt-4 border-t border-cyber-850/60">
+                            <div class="flex justify-between items-center text-[10px] uppercase font-mono tracking-wider">
+                                <span class="text-slate-400">Accuracy Index:</span>
+                                <span class="text-white font-bold">98%</span>
+                            </div>
+                            <div class="w-full bg-cyber-950 h-1.5 rounded-full overflow-hidden">
+                                <div id="perf-t1" class="bg-cyan-500 h-full w-[0%] transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team 2 -->
+                    <div onmouseenter="activateTeamPerf('t2')" onmouseleave="deactivateTeamPerf('t2')" class="p-6 rounded-2xl border bg-cyber-900/20 border-cyber-850 hover:bg-cyber-900/50 hover:border-cyber-800 text-center flex flex-col items-center group relative overflow-hidden transition-all duration-300">
+                        <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-cyan-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                        <div class="w-20 h-20 rounded-2xl overflow-hidden mb-6 bg-cyber-950 flex items-center justify-center border border-cyber-850 group-hover:border-cyan-500/40 transition-colors">
+                            <svg class="w-12 h-12 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-1">Kaelen Vance</h4>
+                        <span class="text-xs text-cyan-400 font-mono mb-4 block">Head Of Security Audits</span>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">Expert in sandboxing isolation configurations and system code penetration assessments.</p>
+                        
+                        <div class="w-full space-y-2 pt-4 border-t border-cyber-850/60">
+                            <div class="flex justify-between items-center text-[10px] uppercase font-mono tracking-wider">
+                                <span class="text-slate-400">Accuracy Index:</span>
+                                <span class="text-white font-bold">96%</span>
+                            </div>
+                            <div class="w-full bg-cyber-950 h-1.5 rounded-full overflow-hidden">
+                                <div id="perf-t2" class="bg-cyan-500 h-full w-[0%] transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team 3 -->
+                    <div onmouseenter="activateTeamPerf('t3')" onmouseleave="deactivateTeamPerf('t3')" class="p-6 rounded-2xl border bg-cyber-900/20 border-cyber-850 hover:bg-cyber-900/50 hover:border-cyber-800 text-center flex flex-col items-center group relative overflow-hidden transition-all duration-300">
+                        <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-cyan-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                        <div class="w-20 h-20 rounded-2xl overflow-hidden mb-6 bg-cyber-950 flex items-center justify-center border border-cyber-850 group-hover:border-cyan-500/40 transition-colors">
+                            <svg class="w-12 h-12 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-1">Sora Tanaka</h4>
+                        <span class="text-xs text-cyan-400 font-mono mb-4 block">Data Streams Director</span>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">Specialist in configuring low-overhead pipelines for petabyte-scale market datasets.</p>
+                        
+                        <div class="w-full space-y-2 pt-4 border-t border-cyber-850/60">
+                            <div class="flex justify-between items-center text-[10px] uppercase font-mono tracking-wider">
+                                <span class="text-slate-400">Accuracy Index:</span>
+                                <span class="text-white font-bold">95%</span>
+                            </div>
+                            <div class="w-full bg-cyber-950 h-1.5 rounded-full overflow-hidden">
+                                <div id="perf-t3" class="bg-cyan-500 h-full w-[0%] transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team 4 -->
+                    <div onmouseenter="activateTeamPerf('t4')" onmouseleave="deactivateTeamPerf('t4')" class="p-6 rounded-2xl border bg-cyber-900/20 border-cyber-850 hover:bg-cyber-900/50 hover:border-cyber-800 text-center flex flex-col items-center group relative overflow-hidden transition-all duration-300">
+                        <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-cyan-500 to-emerald-500 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+                        <div class="w-20 h-20 rounded-2xl overflow-hidden mb-6 bg-cyber-950 flex items-center justify-center border border-cyber-850 group-hover:border-cyan-500/40 transition-colors">
+                            <svg class="w-12 h-12 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        </div>
+                        <h4 class="text-lg font-bold text-white mb-1">Marcus Sterling</h4>
+                        <span class="text-xs text-cyan-400 font-mono mb-4 block">Global Delivery Lead</span>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-6">Manages system transition cycles and infrastructure security handovers.</p>
+                        
+                        <div class="w-full space-y-2 pt-4 border-t border-cyber-850/60">
+                            <div class="flex justify-between items-center text-[10px] uppercase font-mono tracking-wider">
+                                <span class="text-slate-400">Accuracy Index:</span>
+                                <span class="text-white font-bold">93%</span>
+                            </div>
+                            <div class="w-full bg-cyber-950 h-1.5 rounded-full overflow-hidden">
+                                <div id="perf-t4" class="bg-cyan-500 h-full w-[0%] transition-all duration-500"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== CONNECT US VIEW ==================== -->
+        <section id="page-connect" class="page-view hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24 transition-opacity duration-300">
+            <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+                <span class="text-cyan-400 text-xs sm:text-sm font-semibold tracking-wider uppercase font-mono">INITIATE NETWORK HANDSHAKE</span>
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight">Deploy Your Quantitative Engine</h2>
+                <p class="text-base sm:text-lg text-slate-400">Configure parameters or query our live Support Node to map direct pipeline opportunities.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                
+                <!-- Left: Dynamic Form System -->
+                <div class="lg:col-span-7 bg-cyber-900/30 border border-cyber-850 p-8 sm:p-10 rounded-3xl relative">
+                    
+                    <!-- Submitting Loading UI State -->
+                    <div id="formSubmittingState" class="hidden text-center py-16 space-y-6">
+                        <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+                            <div class="absolute inset-0 border-4 border-cyan-500/20 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-t-cyan-500 border-r-cyan-500 rounded-full animate-spin"></div>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="text-lg font-bold text-white font-mono">Routing System Project Proposal...</h4>
+                            <div class="h-1.5 w-48 bg-cyber-950 rounded-full mx-auto overflow-hidden">
+                                <div class="bg-cyan-500 h-full w-0 animate-pulse" style="animation-duration: 1.5s;"></div>
+                            </div>
+                            <p id="submittingStatus" class="text-[10px] text-slate-500 select-none uppercase font-mono tracking-wider">Generating verification keys...</p>
+                        </div>
+                    </div>
+
+                    <!-- Success UI State -->
+                    <div id="formSuccessState" class="hidden text-center py-12 space-y-6">
+                        <div class="w-16 h-16 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+                            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="text-2xl font-bold text-white">Transmissions Active!</h4>
+                            <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+                                Our engineering team has successfully verified your parameters. A solutions architect will reach out to schedule an optimization walkthrough within 12 business hours.
+                            </p>
+                        </div>
+                        <div class="p-4 bg-cyber-950 rounded-2xl border border-cyber-850 text-left max-w-sm mx-auto">
+                            <span class="text-[10px] uppercase font-mono tracking-wider text-slate-500 block">TRANSMISSION ID</span>
+                            <code id="transmissionKey" class="text-xs text-cyan-400 font-bold block select-all font-mono mt-1">QM-CON-000000</code>
+                        </div>
+                        <button onclick="resetContactForm()" class="px-6 py-2.5 rounded-xl border border-cyber-800 text-xs font-semibold text-slate-400 hover:text-white hover:border-slate-700 transition-colors">
+                            Send New Configuration
+                        </button>
+                    </div>
+
+                    <!-- Main Core Form inputs -->
+                    <form id="contactForm" onsubmit="handleFormSubmission(event)" class="space-y-6">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <!-- Name -->
+                            <div class="space-y-2">
+                                <label class="text-xs uppercase font-mono text-slate-400 tracking-wider block">Coordinator Name *</label>
+                                <input type="text" id="formName" required placeholder="e.g. Liam Vance" class="w-full bg-cyber-950 border border-cyber-850 focus:border-cyan-500 rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-colors">
+                            </div>
+
+                            <!-- Email -->
+                            <div class="space-y-2">
+                                <label class="text-xs uppercase font-mono text-slate-400 tracking-wider block">Enterprise Email *</label>
+                                <input type="email" id="formEmail" required placeholder="e.g. liam@vertex.io" class="w-full bg-cyber-950 border border-cyber-850 focus:border-cyan-500 rounded-xl py-3 px-4 text-sm text-white focus:outline-none transition-colors">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <!-- Category select -->
+                            <div class="space-y-2">
+                                <label class="text-xs uppercase font-mono text-slate-400 tracking-wider block">System Segment</label>
+                                <select id="formCategory" class="w-full bg-cyber-950 border border-cyber-850 focus:border-cyan-500 rounded-xl py-3.5 px-4 text-sm text-white focus:outline-none transition-colors">
+                                    <option value="cloud">Quantitative Systems</option>
+                                    <option value="software">Algorithmic Cores</option>
+                                    <option value="data">Data Stream Engine</option>
+                                    <option value="security">Strategic Security Sweeps</option>
+                                </select>
+                            </div>
+
+                            <!-- Budget select -->
+                            <div class="space-y-2">
+                                <label class="text-xs uppercase font-mono text-slate-400 tracking-wider block">Allocated Budget Scale</label>
+                                <select id="formBudget" class="w-full bg-cyber-950 border border-cyber-850 focus:border-cyan-500 rounded-xl py-3.5 px-4 text-sm text-white focus:outline-none transition-colors">
+                                    <option value="tier1">$10,000 - $25,000</option>
+                                    <option value="tier2">$25,000 - $75,000</option>
+                                    <option value="tier3">$75,000 - $150,000</option>
+                                    <option value="tier4">$150,000+ Quantum Scale</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Message -->
+                        <div class="space-y-2">
+                            <label class="text-xs uppercase font-mono text-slate-400 tracking-wider block">Engine Specifications Outline *</label>
+                            <textarea id="formMessage" required rows="4" placeholder="Provide target metrics, required throughput limits, or specific system bottlenecks..." class="w-full bg-cyber-950 border border-cyber-850 focus:border-cyan-500 rounded-xl py-3 px-4 text-sm text-white focus:outline-none resize-none transition-colors"></textarea>
+                        </div>
+
+                        <!-- Mathematical Gate Validation Challenge -->
+                        <div class="p-4 bg-cyber-950 border border-cyber-850 rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div class="space-y-1">
+                                <label class="text-xs uppercase font-mono text-slate-400 tracking-wider block">Security Gate Challenge *</label>
+                                <p class="text-[11px] text-slate-500">Verify human core logic to authorize outbound transmissions.</p>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span id="mathEquation" class="text-sm font-mono font-bold text-white bg-cyber-900 border border-cyber-800 px-3 py-1.5 rounded-lg">4 + 7 =</span>
+                                <input type="text" id="mathAnswer" required placeholder="?" class="w-16 bg-cyber-900 border border-cyber-800 text-center rounded-lg py-1.5 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono">
+                            </div>
+                        </div>
+
+                        <!-- Error Message Toast inside Panel -->
+                        <div id="formErrorMessage" class="hidden p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 font-medium"></div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:opacity-95 text-cyber-950 font-extrabold transition-opacity shadow-lg text-sm flex items-center justify-center space-x-2">
+                            <span>Deploy System Proposal</span>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </button>
+
+                    </form>
+                </div>
+
+                <!-- Right: Fully Functional Telemetry Support Chatbot -->
+                <div class="lg:col-span-5 bg-cyber-900/30 border border-cyber-850 rounded-3xl overflow-hidden flex flex-col h-[560px]">
+                    
+                    <!-- Chat Header -->
+                    <div class="p-6 bg-cyber-950 border-b border-cyber-850 flex items-center space-x-3">
+                        <div class="relative w-10 h-10 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-full flex items-center justify-center">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 absolute bottom-0 right-0 border-2 border-cyber-950"></span>
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-white">QuantMind Support Node</h4>
+                            <span class="text-[10px] text-emerald-400 font-mono tracking-wide uppercase font-semibold">AUTOMATED ASSISTANT</span>
+                        </div>
+                    </div>
+
+                    <!-- Messages list flow -->
+                    <div id="chatFlow" class="flex-grow p-6 overflow-y-auto space-y-4 text-xs font-sans">
+                        
+                        <!-- Initial Message -->
+                        <div class="flex justify-start">
+                            <div class="max-w-[80%] rounded-2xl p-4 bg-cyber-950 border border-cyber-850 text-slate-300 rounded-bl-none leading-relaxed">
+                                <p>Greetings. I am QuantMind Assist Core. Choose a pipeline inquiries category below to analyze telemetry parameters.</p>
+                                <span class="text-[9px] text-slate-500 block text-right mt-1.5 font-mono select-none">System Core</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Suggestion Quick Buttons -->
+                    <div class="p-4 bg-cyber-950/60 border-t border-cyber-850 space-y-2">
+                        <span class="text-[9px] uppercase font-mono tracking-wider text-slate-500 block">Select Inquiry Node</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button onclick="sendQuickBotMessage('Data Engine Latency')" class="px-3 py-2 rounded-xl bg-cyber-900 hover:bg-cyber-850 border border-cyber-800 text-[10px] text-slate-300 transition-colors">Data Engine Latency</button>
+                            <button onclick="sendQuickBotMessage('Engine Pricing Scales')" class="px-3 py-2 rounded-xl bg-cyber-900 hover:bg-cyber-850 border border-cyber-800 text-[10px] text-slate-300 transition-colors">Engine Pricing Scales</button>
+                            <button onclick="sendQuickBotMessage('Uptime Safeguards')" class="px-3 py-2 rounded-xl bg-cyber-900 hover:bg-cyber-850 border border-cyber-800 text-[10px] text-slate-300 transition-colors">Uptime Safeguards</button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Corporate Operational FAQ Grid -->
+            <div class="mt-24 max-w-3xl mx-auto space-y-8">
+                <div class="text-center space-y-3">
+                    <h3 class="text-2xl sm:text-3xl font-extrabold text-white">System Operations FAQ</h3>
+                    <p class="text-xs sm:text-sm text-slate-400">Standard operational guidelines, computational specifications, and deployment boundaries.</p>
+                </div>
+
+                <div class="space-y-4">
+                    
+                    <!-- FAQ 1 -->
+                    <div class="rounded-2xl border border-cyber-850 bg-cyber-900/10 overflow-hidden">
+                        <button onclick="toggleFaq(1)" class="w-full flex justify-between items-center p-5 text-left text-sm font-semibold text-white focus:outline-none hover:bg-cyber-900/20 transition-all duration-300">
+                            <span>How does QuantMind guarantee sub-millisecond latencies?</span>
+                            <svg id="faqIcon-1" class="w-5 h-5 text-slate-500 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div id="faqContent-1" class="hidden p-5 border-t border-cyber-850 bg-cyber-950/40 text-xs sm:text-sm text-slate-400 leading-relaxed">
+                            By designing core quantitative modules directly in raw low-level system compilers (C++20 & Rust) with zero runtime garbage allocation, compiled against highly-insulated dedicated hardware layers.
+                        </div>
+                    </div>
+
+                    <!-- FAQ 2 -->
+                    <div class="rounded-2xl border border-cyber-850 bg-cyber-900/10 overflow-hidden">
+                        <button onclick="toggleFaq(2)" class="w-full flex justify-between items-center p-5 text-left text-sm font-semibold text-white focus:outline-none hover:bg-cyber-900/20 transition-all duration-300">
+                            <span>Do you support existing multi-market integrations?</span>
+                            <svg id="faqIcon-2" class="w-5 h-5 text-slate-500 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div id="faqContent-2" class="hidden p-5 border-t border-cyber-850 bg-cyber-950/40 text-xs sm:text-sm text-slate-400 leading-relaxed">
+                            Yes. Every engineered framework delivers comprehensive API interfaces, Swagger playgrounds, and complete technical reference manuals for smooth configuration during rollout phases.
+                        </div>
+                    </div>
+
+                    <!-- FAQ 3 -->
+                    <div class="rounded-2xl border border-cyber-850 bg-cyber-900/10 overflow-hidden">
+                        <button onclick="toggleFaq(3)" class="w-full flex justify-between items-center p-5 text-left text-sm font-semibold text-white focus:outline-none hover:bg-cyber-900/20 transition-all duration-300">
+                            <span>Can SLA requirements be modified dynamically?</span>
+                            <svg id="faqIcon-3" class="w-5 h-5 text-slate-500 transform transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div id="faqContent-3" class="hidden p-5 border-t border-cyber-850 bg-cyber-950/40 text-xs sm:text-sm text-slate-400 leading-relaxed">
+                            Uptime constraints and peak calculations are fully configurable. Get in touch with our solutions coordination desk to adjust performance metrics dynamically.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Page Footer Component -->
+    <footer class="bg-cyber-950 border-t border-cyber-850 py-12 md:py-16 mt-auto relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-12">
+                
+                <!-- Brand Info block -->
+                <div class="md:col-span-5 space-y-6">
+                    <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateTo('home')">
+                        <div class="w-8 h-8 flex items-center justify-center bg-cyan-500 rounded-lg shadow-lg text-cyber-950">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                            </svg>
+                        </div>
+                        <span class="text-lg font-black tracking-widest text-white font-mono">QUANTMIND</span>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed max-w-sm font-sans">
+                        QuantMind Systems engineers ultra-high performance quantitative trading engines, secure regional stream networks, and verified computational sandboxes.
+                    </p>
+                    <div class="text-[10px] text-slate-500 font-mono tracking-wider">
+                        <span>SYSTEM PORTAL VERSION: 2026.3 // SEC & ISO COMPLIANT</span>
+                    </div>
+                </div>
+
+                <!-- Platform Quick Nav -->
+                <div class="md:col-span-3 space-y-4">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-slate-500 font-mono">Platform Navigation</h5>
+                    <ul class="space-y-2 text-xs font-medium text-slate-450 font-sans">
+                        <li><button onclick="navigateTo('home')" class="text-slate-400 hover:text-cyan-400 transition-colors">Enterprise Home</button></li>
+                        <li><button onclick="navigateTo('services')" class="text-slate-400 hover:text-cyan-400 transition-colors">Capabilities Grid</button></li>
+                        <li><button onclick="navigateTo('company')" class="text-slate-400 hover:text-cyan-400 transition-colors">History Milestones</button></li>
+                        <li><button onclick="navigateTo('connect')" class="text-slate-400 hover:text-cyan-400 transition-colors">Handshake Secure</button></li>
+                    </ul>
+                </div>
+
+                <!-- Strategic Newsletter Subscription Node -->
+                <div class="md:col-span-4 space-y-4">
+                    <h5 class="text-xs font-bold uppercase tracking-widest text-slate-500 font-mono">Technical Briefings</h5>
+                    <p class="text-xs text-slate-400">Receive system optimization logs, secure pipeline analyses, and research papers quarterly.</p>
+                    
+                    <div id="newsletterFormContainer">
+                        <form onsubmit="handleNewsletterSubmit(event)" class="flex space-x-2">
+                            <input type="email" id="newsletterEmail" required placeholder="architect@quantmind.io" class="bg-cyber-900 border border-cyber-850 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-cyan-500 flex-grow font-sans">
+                            <button type="submit" class="py-2.5 px-4 bg-cyan-500 hover:bg-cyan-600 text-cyber-950 rounded-xl text-xs font-extrabold shadow-md transition-colors">
+                                Join Node
+                            </button>
+                        </form>
+                    </div>
+                    <div id="newsletterSuccessMessage" class="hidden p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs rounded-xl font-mono">
+                        Subscription node established successfully!
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Footer Area -->
+            <div class="pt-8 border-t border-cyber-850/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-sans">
+                <span>&copy; 2026 QuantMind Systems Inc. All calculated core parameters protected under global encryption licenses.</span>
+                <div class="flex space-x-6">
+                    <a href="javascript:void(0)" class="hover:text-white transition-colors">System Telemetry</a>
+                    <a href="javascript:void(0)" class="hover:text-white transition-colors">Compliance Protocols</a>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- Client Application Code -->
+    <script>
+        // Global variables state
+        let activeTab = 'home';
+        let currentSlaTier = 'pro';
+        const budgetBrackets = {
+            cloud: 20000,
+            software: 28000,
+            data: 24000,
+            security: 16000
+        };
+
+        // Services Data Set
+        const servicesData = {
+            cloud: {
+                icon: `<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>`,
+                title: 'Quantitative Trade Systems',
+                desc: 'Microsecond-scale execution nodes engineered with continuous mathematical validation. We develop automated pipeline clusters designed to process multi-market inputs under rigorous fault-tolerance thresholds.',
+                tech: ['C++20', 'Rust', 'Kubernetes', 'gRPC', 'Terraform'],
+                lifecycle: 'Active Microservice Core Deployment',
+                compliance: 'Strict microsecond telemetry tracking & active validation',
+                deliverables: [
+                    'Optimized cluster blueprint configuration files',
+                    'Asynchronous metrics reporting integrations',
+                    'Secure internal sandbox execution files'
+                ]
+            },
+            software: {
+                icon: `<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>`,
+                title: 'High-Frequency Algorithmic Cores',
+                desc: 'Highly parallel computational engines designed with maximum memory-safety bounds. Employs advanced task partitioning and zero-allocation dynamic buffer logic to minimize execution jitter during high volume events.',
+                tech: ['Rust', 'Go', 'WebAssembly', 'TypeScript', 'Docker'],
+                lifecycle: 'Agile Feature Iteration Releases',
+                compliance: 'Rigid static code compilation and data memory auditing',
+                deliverables: [
+                    'Native binary system modules ready for EKS',
+                    'Telemetry dashboard visualization blocks',
+                    'Robust automated integration test coverage packages'
+                ]
+            },
+            data: {
+                icon: `<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>`,
+                title: 'Real-Time Ingestion Streams',
+                desc: 'Sub-millisecond analytics data structures capable of processing multiple gigabytes per second safely. Leverages reliable message queue designs combined with columnar database stores.',
+                tech: ['Apache Kafka', 'ClickHouse', 'PostgreSQL', 'Python', 'Apache Spark'],
+                lifecycle: 'Continuous Processing Stream Feed',
+                compliance: 'Dynamic volume assertions and structural audit checks',
+                deliverables: [
+                    'Distributed message queue layout setups',
+                    'Persistent structured database clusters',
+                    'Interactive telemetry query modules'
+                ]
+            },
+            security: {
+                icon: `<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>`,
+                title: 'Strategic Penetration Sweeps',
+                desc: 'Complete architectural insulation mapping and vulnerability defense modeling. Helps financial teams guarantee high security levels over private customer ledgers.',
+                tech: ['Snyk Security', 'HashiCorp Vault', 'OWASP Standards', 'Auth0 Security', 'mTLS Gates'],
+                lifecycle: 'Proactive System Vulnerability Audits',
+                compliance: 'SOC2 Type II and internal SEC security guidelines alignment',
+                deliverables: [
+                    'Comprehensive network topography audit reports',
+                    'Automated security firewall patch rulesets',
+                    'Cryptographic token isolation blueprints'
+                ]
+            }
+        };
+
+        // Milestone Data
+        const milestones = {
+            2019: {
+                title: 'Genesis System Inception',
+                scope: 'GENESIS CORE',
+                desc: 'QuantMind established a localized microsecond tracker system designed to check telemetry metrics for regional execution desks.'
+            },
+            2021: {
+                title: 'Decentralized Streaming Scale',
+                scope: 'STREAM SCALE',
+                desc: 'Expanded calculations across 3 separate geo-region nodes, successfully managing 200M+ real-time predictive parameters daily.'
+            },
+            2023: {
+                title: 'Zero-Allocation Ingress Launch',
+                scope: 'LATENCY v2',
+                desc: 'Successfully deployed zero-allocation compiler pipelines, decreasing computational overhead and cloud resources consumption by 35%.'
+            },
+            2025: {
+                title: 'Autonomous Clustering Framework',
+                scope: 'QUANTUM GRID',
+                desc: 'Completed automated sandbox fault-isolation setups, maintaining continuous operational metrics even during heavy market dropdowns.'
+            },
+            2026: {
+                title: 'Global Precision Pipelines',
+                scope: 'FUTURE SCALE',
+                desc: 'Actively coordinating over $4.8B in total transactional value with reliable 24/7 support networks and SEC-aligned protocols.'
+            }
+        };
+
+        // Setup Particles Canvas Background
+        const canvas = document.getElementById('particlesCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = Math.random() * 0.4 - 0.2;
+                this.speedY = Math.random() * 0.4 - 0.2;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(6, 182, 212, 0.4)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = Math.min(Math.floor(window.innerWidth / 15), 100);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+
+        function animateBackground() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateBackground);
+        }
+        animateBackground();
+
+
+        // Sparkline Canvas Core telemetry graph simulation
+        const sparklineCanvas = document.getElementById('sparklineCanvas');
+        const sCtx = sparklineCanvas.getContext('2d');
+        let sparklineData = Array(40).fill(15);
+        let simulationLoadActive = false;
+        let simulationProgressVal = 0;
+
+        function drawSparkline() {
+            sCtx.clearRect(0, 0, sparklineCanvas.width, sparklineCanvas.height);
+            
+            // Layout width logic
+            const w = sparklineCanvas.width = sparklineCanvas.clientWidth;
+            const h = sparklineCanvas.height = sparklineCanvas.clientHeight;
+            
+            sCtx.strokeStyle = '#06b6d4';
+            sCtx.lineWidth = 2.5;
+            sCtx.beginPath();
+
+            const step = w / (sparklineData.length - 1);
+            for (let i = 0; i < sparklineData.length; i++) {
+                const x = i * step;
+                // invert and scale
+                const y = h - (sparklineData[i] / 100) * (h - 10) - 5;
+                if (i === 0) sCtx.moveTo(x, y);
+                else sCtx.lineTo(x, y);
+            }
+            sCtx.stroke();
+
+            // Gradient filling beneath path
+            sCtx.lineTo(w, h);
+            sCtx.lineTo(0, h);
+            sCtx.closePath();
+            const grad = sCtx.createLinearGradient(0, 0, 0, h);
+            grad.addColorStop(0, 'rgba(6, 182, 212, 0.2)');
+            grad.addColorStop(1, 'rgba(6, 182, 212, 0)');
+            sCtx.fillStyle = grad;
+            sCtx.fill();
+        }
+
+        // Live updating interval for sparkline graph
+        setInterval(() => {
+            let nextVal;
+            if (simulationLoadActive) {
+                // benchmark simulation active
+                nextVal = Math.floor(Math.sin(Date.now() / 200) * 20 + 75 + Math.random() * 8);
+                simulationProgressVal += 2.5;
+                document.getElementById('loadText').innerText = nextVal + '%';
+                document.getElementById('loadProgressBar').style.width = nextVal + '%';
+
+                if (simulationProgressVal >= 100) {
+                    simulationLoadActive = false;
+                    simulationProgressVal = 0;
+                }
+            } else {
+                nextVal = Math.floor(Math.random() * 12) + 20;
+                document.getElementById('loadText').innerText = nextVal + '%';
+                document.getElementById('loadProgressBar').style.width = nextVal + '%';
+            }
+
+            sparklineData.shift();
+            sparklineData.push(nextVal);
+            drawSparkline();
+        }, 120);
+
+        function triggerBenchmarkSimulation() {
+            simulationLoadActive = true;
+            simulationProgressVal = 0;
+        }
+
+
+        // Rotating Words on Hero Title
+        const heroWords = ['Synthesize Predictive Models', 'Optimize Dynamic Portfolios', 'Architect Microsecond Systems', 'Exceed Quantitative SLAs'];
+        let wordIdx = 0;
+        setInterval(() => {
+            wordIdx = (wordIdx + 1) % heroWords.length;
+            const el = document.getElementById('hero-word');
+            if (el) {
+                el.style.opacity = 0;
+                setTimeout(() => {
+                    el.innerText = heroWords[wordIdx];
+                    el.style.opacity = 1;
+                }, 200);
+            }
+        }, 4000);
+
+
+        // Application Views & Tab Router logic
+        function navigateTo(tabId) {
+            // Update Navigation active buttons styling
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active-tab-nav'));
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) activeBtn.classList.add('active-tab-nav');
+
+            // Toggle Page Elements Visual State smoothly
+            document.querySelectorAll('.page-view').forEach(view => {
+                view.style.opacity = 0;
+                setTimeout(() => {
+                    view.classList.add('hidden');
+                }, 150);
+            });
+
+            setTimeout(() => {
+                const targetView = document.getElementById('page-' + tabId);
+                targetView.classList.remove('hidden');
+                setTimeout(() => {
+                    targetView.style.opacity = 1;
+                    // Redraw sparkline if home loaded
+                    if (tabId === 'home') drawSparkline();
+                }, 50);
+            }, 160);
+
+            // Close Mobile menu automatically
+            document.getElementById('mobileMenu').classList.add('hidden');
+            activeTab = tabId;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+
+        // Services details view logic
+        function selectService(serviceKey) {
+            const data = servicesData[serviceKey];
+            if (!data) return;
+
+            // Highlight chosen Card border layout
+            document.querySelectorAll('[id^="serviceCard-"]').forEach(card => {
+                card.classList.remove('border-cyan-500/80', 'bg-cyan-950/20');
+                card.classList.add('border-cyber-850', 'bg-cyber-900/30');
+            });
+            const targetCard = document.getElementById('serviceCard-' + serviceKey);
+            targetCard.classList.remove('border-cyber-850', 'bg-cyber-900/30');
+            targetCard.classList.add('border-cyan-500/80', 'bg-cyan-950/20');
+
+            // Load Content to Spec Drawer
+            document.getElementById('drawerIcon').innerHTML = data.icon;
+            document.getElementById('drawerTitle').innerText = data.title + ' System Specifications';
+            document.getElementById('drawerDesc').innerText = data.desc;
+
+            // Load Tech tags
+            const techContainer = document.getElementById('drawerTech');
+            techContainer.innerHTML = '';
+            data.tech.forEach(t => {
+                techContainer.innerHTML += `<span class="px-3 py-1 bg-cyber-950 text-cyan-400 border border-cyber-850 rounded-full text-xs font-mono font-medium">${t}</span>`;
+            });
+
+            document.getElementById('drawerLifecycle').innerText = data.lifecycle;
+            document.getElementById('drawerCompliance').innerText = data.compliance;
+
+            // Deliverables mapping
+            const delContainer = document.getElementById('drawerDeliverables');
+            delContainer.innerHTML = '';
+            data.deliverables.forEach(d => {
+                delContainer.innerHTML += `
+                    <li class="flex items-center space-x-2.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        <span>${d}</span>
+                    </li>`;
+            });
+
+            // Reveal specifications block smoothly
+            const drawer = document.getElementById('serviceDrawer');
+            drawer.classList.remove('hidden');
+            drawer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function closeServiceDrawer() {
+            document.getElementById('serviceDrawer').classList.add('hidden');
+            document.querySelectorAll('[id^="serviceCard-"]').forEach(card => {
+                card.classList.remove('border-cyan-500/80', 'bg-cyan-950/20');
+                card.classList.add('border-cyber-850', 'bg-cyber-900/30');
+            });
+        }
+
+
+        // SLA and Budget Slider Cost Computations
+        function setSLATier(tier) {
+            currentSlaTier = tier;
+            // Update visual state of buttons
+            document.querySelectorAll('.sla-btn').forEach(btn => {
+                btn.className = 'sla-btn py-3 px-2 text-xs font-bold rounded-xl border transition-all duration-300 bg-cyber-950 text-slate-400 border-cyber-850 hover:border-slate-800';
+            });
+            
+            const selectedBtn = document.getElementById('btnSla-' + tier);
+            if (tier === 'pro') {
+                selectedBtn.className = 'sla-btn py-3 px-2 text-xs font-bold rounded-xl border transition-all duration-300 bg-cyan-500 text-cyber-950 border-cyan-400 font-semibold';
+            } else if (tier === 'quantum') {
+                selectedBtn.className = 'sla-btn py-3 px-2 text-xs font-bold rounded-xl border transition-all duration-300 bg-gradient-to-r from-cyan-500 to-emerald-500 text-cyber-950 border-cyan-400 font-bold';
+            } else {
+                selectedBtn.className = 'sla-btn py-3 px-2 text-xs font-bold rounded-xl border transition-all duration-300 bg-slate-800 text-white border-slate-700 font-semibold';
+            }
+
+            calculateBudget();
+        }
+
+        function updateSliderText() {
+            const months = document.getElementById('estDuration').value;
+            document.getElementById('estDurationText').innerText = months + ' Months';
+        }
+
+        function calculateBudget() {
+            const type = document.getElementById('estType').value;
+            const duration = parseInt(document.getElementById('estDuration').value, 10);
+            
+            // Core cost math factors
+            const base = budgetBrackets[type] || 20000;
+            let mult = 1.0;
+            if (currentSlaTier === 'pro') mult = 1.5;
+            else if (currentSlaTier === 'quantum') mult = 2.15;
+
+            // Timeline adjustments
+            let timelineMod = 1.0;
+            let impactText = 'Standard';
+            if (duration <= 4) {
+                timelineMod = 1.25; // Rush premium
+                impactText = 'Fast Track Premium (+25%)';
+            } else if (duration >= 12) {
+                timelineMod = 0.85; // Long term reduction
+                impactText = 'Extended Support Reduction (-15%)';
+            }
+
+            const total = Math.round((base * mult) * timelineMod);
+
+            // Reflect in UI parameters
+            document.getElementById('calculatedCostText').innerText = '$' + total.toLocaleString();
+            document.getElementById('baseCostText').innerText = '$' + base.toLocaleString();
+            document.getElementById('tierMultiplierText').innerText = mult + 'x';
+            document.getElementById('timelineImpactText').innerText = impactText;
+        }
+
+        function transferBudgetToForm() {
+            const type = document.getElementById('estType').value;
+            const duration = document.getElementById('estDuration').value;
+            const costText = document.getElementById('calculatedCostText').innerText;
+
+            // Route user directly to Connect interface
+            navigateTo('connect');
+
+            // Seed content into input fields
+            setTimeout(() => {
+                document.getElementById('formCategory').value = type;
+                
+                // Estimate selection dropdown matching closest bracket
+                const cleanCost = parseInt(costText.replace(/[^0-9]/g, ''), 10);
+                let bracket = 'tier1';
+                if (cleanCost > 25000 && cleanCost <= 75000) bracket = 'tier2';
+                else if (cleanCost > 75050 && cleanCost <= 150000) bracket = 'tier3';
+                else if (cleanCost > 150000) bracket = 'tier4';
+                document.getElementById('formBudget').value = bracket;
+
+                document.getElementById('formMessage').value = `Synthesis Parameters Profile: Desired SLA tier is '${currentSlaTier}' scale target. Target execution duration is configured to ${duration} months with an calculated pipeline estimate of ${costText} USD.`;
+            }, 250);
+        }
+
+
+        // Company History Era selection node controls
+        function setTimelineYear(year, progressPercent) {
+            // Style year buttons
+            document.querySelectorAll('.timeline-btn').forEach(btn => {
+                btn.className = 'timeline-btn w-12 h-12 rounded-full bg-cyber-900 text-slate-400 border border-cyber-850 font-mono font-bold text-xs relative z-10 hover:text-white transition-all duration-300';
+            });
+
+            // Set progressbar
+            document.getElementById('timelineProgress').style.width = progressPercent + '%';
+
+            // Highlight target
+            event.target.className = 'timeline-btn w-12 h-12 rounded-full bg-cyan-500 text-cyber-950 font-mono font-bold text-xs relative z-10 ring-4 ring-cyan-500/20 transition-all duration-300';
+
+            // Update content details block
+            const data = milestones[year];
+            if (data) {
+                document.getElementById('timelineTitle').innerText = data.title;
+                document.getElementById('timelineScope').innerText = data.scope;
+                document.getElementById('timelineDesc').innerText = data.desc;
+            }
+        }
+
+
+        // Team member visual progress score trackers
+        function activateTeamPerf(perfId) {
+            const bar = document.getElementById('perf-' + perfId);
+            if (perfId === 't1') bar.style.width = '98%';
+            if (perfId === 't2') bar.style.width = '96%';
+            if (perfId === 't3') bar.style.width = '95%';
+            if (perfId === 't4') bar.style.width = '93%';
+        }
+
+        function deactivateTeamPerf(perfId) {
+            document.getElementById('perf-' + perfId).style.width = '0%';
+        }
+
+
+        // Security Math Gate initialization values
+        let checkValX = 5;
+        let checkValY = 8;
+
+        function refreshMathGate() {
+            checkValX = Math.floor(Math.random() * 8) + 2;
+            checkValY = Math.floor(Math.random() * 8) + 2;
+            document.getElementById('mathEquation').innerText = `${checkValX} + ${checkValY} =`;
+            document.getElementById('mathAnswer').value = '';
+        }
+        refreshMathGate();
+
+        // Contact proposal Form Submissions handling
+        function handleFormSubmission(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('formName').value;
+            const email = document.getElementById('formEmail').value;
+            const msg = document.getElementById('formMessage').value;
+            const answer = parseInt(document.getElementById('mathAnswer').value, 10);
+            
+            const errorToast = document.getElementById('formErrorMessage');
+            errorToast.classList.add('hidden');
+
+            // Run structural requirements validation
+            if (name.length < 3) {
+                errorToast.innerText = 'Coordinator name must contain 3 or more characters.';
+                errorToast.classList.remove('hidden');
+                return;
+            }
+            if (msg.length < 10) {
+                errorToast.innerText = 'Engine specifications must exceed 10 characters.';
+                errorToast.classList.remove('hidden');
+                return;
+            }
+
+            // Math Gate validation
+            if (answer !== (checkValX + checkValY)) {
+                errorToast.innerText = 'Gate validation computation failed. Please re-check sum logic.';
+                errorToast.classList.remove('hidden');
+                return;
+            }
+
+            // Hide form, reveal simulated build states
+            document.getElementById('contactForm').classList.add('hidden');
+            const submitState = document.getElementById('formSubmittingState');
+            const statusText = document.getElementById('submittingStatus');
+            submitState.classList.remove('hidden');
+
+            setTimeout(() => {
+                statusText.innerText = 'Encrypting system project specifications...';
+                setTimeout(() => {
+                    statusText.innerText = 'Mapping credentials to active architecture nodes...';
+                    setTimeout(() => {
+                        // Deliver unique key and show success panel
+                        const key = Math.floor(100000 + Math.random() * 900000);
+                        document.getElementById('transmissionKey').innerText = 'QM-CON-' + key;
+                        
+                        submitState.classList.add('hidden');
+                        document.getElementById('formSuccessState').classList.remove('hidden');
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }
+
+        function resetContactForm() {
+            document.getElementById('contactForm').reset();
+            document.getElementById('formSuccessState').classList.add('hidden');
+            document.getElementById('contactForm').classList.remove('hidden');
+            refreshMathGate();
+        }
+
+
+        // Live Telemetry Companion Chatbot Logic
+        function appendChatMessage(sender, text) {
+            const flow = document.getElementById('chatFlow');
+            const dateStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            const isUser = sender === 'user';
+            const outerClass = isUser ? 'justify-end' : 'justify-start';
+            const innerClass = isUser 
+                ? 'bg-cyan-500 text-cyber-950 rounded-br-none font-medium' 
+                : 'bg-cyber-950 border border-cyber-850 text-slate-300 rounded-bl-none';
+
+            const block = `
+                <div class="flex ${outerClass}">
+                    <div class="max-w-[80%] rounded-2xl p-4 leading-relaxed ${innerClass}">
+                        <p>${text}</p>
+                        <span class="text-[9px] text-slate-500 block text-right mt-1.5 font-mono select-none">${isUser ? 'Client Query' : 'Assist Node'} - ${dateStr}</span>
+                    </div>
+                </div>`;
+            
+            flow.innerHTML += block;
+            flow.scrollTop = flow.scrollHeight;
+        }
+
+        function sendQuickBotMessage(option) {
+            appendChatMessage('user', option);
+
+            // Simulated loading dot state
+            const flow = document.getElementById('chatFlow');
+            const typingBubble = `
+                <div id="botTypingBubble" class="flex justify-start">
+                    <div class="bg-cyber-950 border border-cyber-850 rounded-2xl p-4 flex items-center space-x-1.5 rounded-bl-none">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce" style="animation-delay: 0ms"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce" style="animation-delay: 150ms"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce" style="animation-delay: 300ms"></span>
+                    </div>
+                </div>`;
+            flow.innerHTML += typingBubble;
+            flow.scrollTop = flow.scrollHeight;
+
+            setTimeout(() => {
+                // Delete Typing dot element
+                const element = document.getElementById('botTypingBubble');
+                if (element) element.remove();
+
+                let reply = '';
+                if (option === 'Data Engine Latency') {
+                    reply = 'QuantMind cores parse real-time market data in microseconds. Average end-to-end telemetry cycles remain below 1.12ms under heavy load conditions.';
+                } else if (option === 'Engine Pricing Scales') {
+                    reply = 'Our optimized architectures range from $16K to $150K+, calculated based on active clusters size, desired pipeline duration, and SLA standards.';
+                } else if (option === 'Uptime Safeguards') {
+                    reply = 'Uptime is secured at 99.999% through redundant fallback nodes, isolated sandbox environments, and automated failure containment protocols.';
+                }
+
+                appendChatMessage('bot', reply);
+            }, 1000);
+        }
+
+        // Newsletter subscription form logic
+        function handleNewsletterSubmit(event) {
+            event.preventDefault();
+            document.getElementById('newsletterFormContainer').classList.add('hidden');
+            document.getElementById('newsletterSuccessMessage').classList.remove('hidden');
+        }
+
+        // Setup chart initially on window load
+        window.onload = function() {
+            drawSparkline();
+            calculateBudget();
+        };
+
+    </script>
+</body>
+</html>
